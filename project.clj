@@ -4,10 +4,9 @@
   :license {:name "Public Domain"
             :url "http://unlicense.org/UNLICENSE"}
   :dependencies [[org.clojure/clojure "1.8.0"]
-                 [org.clojure/clojurescript "1.7.228"
-                  :exclusions [org.clojure/tools.reader]]
+                 [org.clojure/clojurescript "1.7.228"]
                  [prismatic/schema "0.4.3"]
-                 [tag-soup "1.1.5"]
+                 [tag-soup "1.2.0"]
                  [org.clojars.oakes/parinfer "0.4.0"]
                  [cljsjs/parinfer "1.8.1-0"]]
   :profiles {:uberjar {:prep-tasks ["compile" ["cljsbuild" "once"]]}}

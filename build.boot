@@ -11,7 +11,8 @@
                    :exclusions [org.clojure/tools.reader]]
                   [prismatic/schema "0.4.3"]
                   [tag-soup "1.1.5"]
-                  [org.clojars.oakes/parinfer "0.4.0"]])
+                  [org.clojars.oakes/parinfer "0.4.0"]
+                  [cljsjs/parinfer "1.8.1-0"]])
 
 (require
   '[adzerk.boot-cljs :refer [cljs]]

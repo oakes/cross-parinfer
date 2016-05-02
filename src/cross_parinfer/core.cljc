@@ -3,7 +3,7 @@
             [tag-soup.core :as ts]
             [schema.core :refer [maybe either Any Str Int Keyword Bool]
              #?@(:clj [:as s])]
-            #?(:cljs [parinfer.core]))
+            #?(:cljs [cljsjs.parinfer]))
   #?(:cljs (:require-macros [schema.core :as s])
      :clj (:import [com.oakmac.parinfer Parinfer ParinferResult])))
 

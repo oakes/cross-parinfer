@@ -33,6 +33,20 @@
                             #js {:cursorLine line :cursorX x}))]
     {:x (.-cursorX res) :text (.-text res)}))
 
+(s/defn mode :- {Keyword Any}
+  "Runs the specified mode, which can be :paren, :indent, or :both."
+  [mode-type :- Keyword
+   text :- Str
+   x :- Int
+   line :- Int]
+  (case mode-type
+    :paren
+    (paren-mode text x line)
+    :indent
+    (indent-mode text x line)
+    :both
+    (-> text (paren-mode x line) :text (indent-mode x line))))
+
 (s/defn split-lines :- [Str]
   "Splits the string into lines."
   [s :- Str]
@@ -64,8 +78,21 @@
         text (str/join "\n" lines)]
     (count text)))
 
+(s/defn add-parinfer :- {Keyword Any}
+  "Adds parinfer to the state."
+  [mode-type :- Keyword
+   state :- {Keyword Any}]
+  (let [{:keys [cursor-position text]} state
+        [start-pos end-pos] cursor-position
+        [row col] (position->row-col text start-pos)
+        result (mode mode-type text col row)]
+    (if (not= start-pos end-pos)
+      (assoc state :text (:text result))
+      (let [pos (row-col->position (:text result) row (:x result))]
+        (assoc state :text (:text result) :cursor-position [pos pos])))))
+
 (s/defn add-indent :- {Keyword Any}
-  "Adds indent to the relevant line(s)."
+  "Adds indent to the state."
   [state :- {Keyword Any}]
   (let [[start-pos end-pos] (:cursor-position state)
         text (:text state)

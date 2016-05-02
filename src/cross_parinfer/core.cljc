@@ -12,26 +12,32 @@
   [text :- Str
    x :- Int
    line :- Int]
-  (let [res #?(:clj (try
-                      (Parinfer/parenMode text (int x) (int line) nil false)
-                      (catch Exception _
-                        (Parinfer/parenMode text (int 0) (int 0) nil false)))
-               :cljs (.parenMode js/parinfer text
-                       #js {:cursorLine line :cursorX x}))]
-    {:x (.-cursorX res) :text (.-text res)}))
+  #?(:clj
+     (let [res (try
+                 (Parinfer/parenMode text (int x) (int line) nil false)
+                 (catch Exception _
+                   (Parinfer/parenMode text (int 0) (int 0) nil false)))]
+       {:x (.-cursorX res) :text (.-text res)})
+
+     :cljs
+     (let [res (.parenMode js/parinfer text #js {:cursorLine line :cursorX x})]
+       {:x (aget res "cursorX") :text (aget res "text")})))
 
 (s/defn indent-mode :- {Keyword Any}
   "Runs indent mode on the given text."
   [text :- Str
    x :- Int
    line :- Int]
-  (let [res #?(:clj (try
-                      (Parinfer/indentMode text (int x) (int line) nil false)
-                      (catch Exception _
-                        (Parinfer/indentMode text (int 0) (int 0) nil false)))
-                    :cljs (.indentMode js/parinfer text
-                            #js {:cursorLine line :cursorX x}))]
-    {:x (.-cursorX res) :text (.-text res)}))
+  #?(:clj
+     (let [res (try
+                 (Parinfer/indentMode text (int x) (int line) nil false)
+                 (catch Exception _
+                   (Parinfer/indentMode text (int 0) (int 0) nil false)))]
+       {:x (.-cursorX res) :text (.-text res)})
+
+     :cljs
+     (let [res (.indentMode js/parinfer text #js {:cursorLine line :cursorX x})]
+       {:x (aget res "cursorX") :text (aget res "text")})))
 
 (s/defn mode :- {Keyword Any}
   "Runs the specified mode, which can be :paren, :indent, or :both."

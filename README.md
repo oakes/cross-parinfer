@@ -17,7 +17,7 @@ Additionally, it provides a function called `add-indent` to add indentation wher
 ; => {:cursor-position [10 10], :text "(+ 1 1\n   )"}
 
 (add-indent {:text "(+ 1 1)\n(+ 1 1)" :cursor-position [0 10] :indent-type :forward})
-{:cursor-position [0 19], :text "  (+ 1 1)\n  (+ 1 1)"}
+; => {:cursor-position [0 19], :text "  (+ 1 1)\n  (+ 1 1)"}
 ```
 
 ## Licensing

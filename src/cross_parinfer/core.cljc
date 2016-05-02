@@ -100,21 +100,26 @@
 (s/defn add-indent :- {Keyword Any}
   "Adds indent to the state."
   [state :- {Keyword Any}]
-  (let [[start-pos end-pos] (:cursor-position state)
-        text (:text state)
+  (let [; get the values out of the state
+        {:keys [text cursor-position indent-type]} state
+        [start-pos end-pos] cursor-position
+        ; find the start and end lines and calculate which lines need to be indented
         [start-line start-x] (position->row-col text start-pos)
         [end-line _] (position->row-col text end-pos)
         lines-to-change (range start-line (inc end-line))
+        ; split the text into lines and find the old indent level
         lines (split-lines text)
         old-indent-level (->> (get lines start-line) seq (take-while #(= % \space)) count)
+        ; use tag-soup to parse the text into tags and decide how much we need to indent
         tags (ts/str->tags text)
-        new-indent-level (case (:indent-type state)
+        new-indent-level (case indent-type
                            :return
                            (ts/indent-for-line tags start-line)
                            :back
                            (ts/back-indent-for-line tags start-line old-indent-level)
                            :forward
                            (ts/forward-indent-for-line tags start-line old-indent-level))
+        ; calculate how much to change the current indent
         indent-change (- new-indent-level old-indent-level)
         indent-change (if (neg? indent-change)
                         (->> (seq (get lines start-line))
@@ -124,6 +129,7 @@
                              count
                              (* -1))
                         indent-change)
+        ; apply the indentation change to the relevant lines
         lines (reduce
                 (fn [lines line-to-change]
                   (update
@@ -137,11 +143,15 @@
                         (str (str/join spaces) (str/join code))))))
                 lines
                 lines-to-change)
+        ; create a string with the new text in it
         text (str/join \newline lines)
-        text (if (= :return (:indent-type state))
+        ; apply indent mode to the new text if necessary
+        text (if (= :return indent-type)
                text
                (:text (indent-mode text start-x start-line)))
+        ; split the new text into lines so we can figure out the new cursor position
         lines (split-lines text)]
+    ; return the new cursor position and text
     {:cursor-position
      (if (= start-pos end-pos)
        (let [pos (row-col->position text start-line new-indent-level)]

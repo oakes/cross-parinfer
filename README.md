@@ -1,3 +1,5 @@
+[![Clojars Project](https://img.shields.io/clojars/v/cross-parinfer.svg)](https://clojars.org/cross-parinfer)
+
 ## Introduction
 
 A Clojure and ClojureScript library that wraps [parinfer.js](https://github.com/shaunlebron/parinfer) and [parinfer-jvm](https://github.com/oakmac/parinfer-jvm) so it is accessible on both platforms with the same functions. It supplies `paren-mode` and `indent-mode` functions, both of which take the text, the cursor's x position, and the line (the latter two are zero-based).

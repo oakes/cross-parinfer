@@ -111,7 +111,7 @@
         lines (split-lines text)
         old-indent-level (->> (get lines start-line) seq (take-while #(= % \space)) count)
         ; use tag-soup to parse the text into tags and decide how much we need to indent
-        tags (ts/str->tags text)
+        tags (ts/code->tags text)
         new-indent-level (case indent-type
                            :return
                            (ts/indent-for-line tags start-line)

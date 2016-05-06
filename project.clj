@@ -6,7 +6,7 @@
   :dependencies [[org.clojure/clojure "1.8.0"]
                  [org.clojure/clojurescript "1.7.228"]
                  [prismatic/schema "0.4.3"]
-                 [tag-soup "1.2.1"]
+                 [tag-soup "1.2.2"]
                  [org.clojars.oakes/parinfer "0.4.0"]
                  [cljsjs/parinfer "1.8.1-0"]]
   :profiles {:uberjar {:prep-tasks ["compile" ["cljsbuild" "once"]]}}

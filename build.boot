@@ -7,9 +7,9 @@
                   [pandeiro/boot-http "0.6.3-SNAPSHOT" :scope "test"]
                   ; project deps
                   [org.clojure/clojure "1.8.0"]
-                  [org.clojure/clojurescript "1.7.228"]
+                  [org.clojure/clojurescript "1.8.51"]
                   [prismatic/schema "0.4.3"]
-                  [tag-soup "1.2.2"]
+                  [tag-soup "1.2.3"]
                   [org.clojars.oakes/parinfer "0.4.0"]
                   [cljsjs/parinfer "1.8.1-0"]])
 

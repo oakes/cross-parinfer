@@ -114,11 +114,11 @@
         tags (ts/code->tags text)
         new-indent-level (case indent-type
                            :return
-                           (ts/indent-for-line tags start-line)
+                           (ts/indent-for-line tags (inc start-line))
                            :back
-                           (ts/back-indent-for-line tags start-line old-indent-level)
+                           (ts/back-indent-for-line tags (inc start-line) old-indent-level)
                            :forward
-                           (ts/forward-indent-for-line tags start-line old-indent-level))
+                           (ts/forward-indent-for-line tags (inc start-line) old-indent-level))
         ; calculate how much to change the current indent
         indent-change (- new-indent-level old-indent-level)
         indent-change (if (neg? indent-change)

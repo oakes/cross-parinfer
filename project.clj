@@ -1,4 +1,4 @@
-(defproject cross-parinfer "1.1.5"
+(defproject cross-parinfer "1.1.6-SNAPSHOT"
   :description "A library that wraps Parinfer for Clojure and ClojureScript"
   :url "https://github.com/oakes/cross-parinfer"
   :license {:name "Public Domain"

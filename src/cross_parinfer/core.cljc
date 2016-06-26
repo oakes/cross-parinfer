@@ -51,7 +51,7 @@
     :indent
     (indent-mode text x line)
     :both
-    (-> text (indent-mode x line) :text (paren-mode x line))))
+    (-> text (paren-mode x line) :text (indent-mode x line))))
 
 (s/defn split-lines :- [Str]
   "Splits the string into lines."

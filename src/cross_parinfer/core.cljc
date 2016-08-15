@@ -1,17 +1,14 @@
 (ns cross-parinfer.core
   (:require [clojure.string :as str]
             [tag-soup.core :as ts]
-            [schema.core :refer [maybe either Any Str Int Keyword Bool]
-             #?@(:clj [:as s])]
+            [clojure.spec :as s :refer [fdef]]
+            [clojure.spec.test :refer [instrument]]
             #?(:cljs [cljsjs.parinfer]))
-  #?(:cljs (:require-macros [schema.core :as s])
-     :clj (:import [com.oakmac.parinfer Parinfer ParinferResult])))
+  #?(:clj (:import [com.oakmac.parinfer Parinfer ParinferResult])))
 
-(s/defn paren-mode :- {Keyword Any}
+(defn paren-mode
   "Runs paren mode on the given text."
-  [text :- Str
-   x :- Int
-   line :- Int]
+  [text x line]
   #?(:clj
      (let [res (try
                  (Parinfer/parenMode text (int x) (int line) nil false)
@@ -23,11 +20,9 @@
      (let [res (.parenMode js/parinfer text #js {:cursorLine line :cursorX x})]
        {:x (aget res "cursorX") :text (aget res "text")})))
 
-(s/defn indent-mode :- {Keyword Any}
+(defn indent-mode
   "Runs indent mode on the given text."
-  [text :- Str
-   x :- Int
-   line :- Int]
+  [text x line]
   #?(:clj
      (let [res (try
                  (Parinfer/indentMode text (int x) (int line) nil false)
@@ -39,12 +34,9 @@
      (let [res (.indentMode js/parinfer text #js {:cursorLine line :cursorX x})]
        {:x (aget res "cursorX") :text (aget res "text")})))
 
-(s/defn mode :- {Keyword Any}
+(defn mode
   "Runs the specified mode, which can be :paren, :indent, or :both."
-  [mode-type :- Keyword
-   text :- Str
-   x :- Int
-   line :- Int]
+  [mode-type text x line]
   (case mode-type
     :paren
     (paren-mode text x line)
@@ -53,15 +45,14 @@
     :both
     (-> text (paren-mode x line) :text (indent-mode x line))))
 
-(s/defn split-lines :- [Str]
+(defn split-lines
   "Splits the string into lines."
-  [s :- Str]
+  [s]
   (vec (.split s "\n" -1)))
 
-(s/defn position->row-col :- [Int]
+(defn position->row-col
   "Converts a position to a row and column number."
-  [text :- Str
-   position :- Int]
+  [text position]
   (let [text (subs text 0 position)
         last-newline (.lastIndexOf text "\n")
         row (count (re-seq #"\n" text))
@@ -70,11 +61,9 @@
               position)]
     [row col]))
 
-(s/defn row-col->position :- Int
+(defn row-col->position
   "Converts a row and column number to a position."
-  [text :- Str
-   row :- Int
-   col :- Int]
+  [text row col]
   (let [all-lines (vec (split-lines text))
         lines (vec (take row all-lines))
         last-line (get all-lines row)
@@ -84,10 +73,9 @@
         text (str/join "\n" lines)]
     (count text)))
 
-(s/defn add-parinfer :- {Keyword Any}
+(defn add-parinfer
   "Adds parinfer to the state."
-  [mode-type :- Keyword
-   state :- {Keyword Any}]
+  [mode-type state]
   (let [{:keys [cursor-position text]} state
         [start-pos end-pos] cursor-position
         [row col] (position->row-col text start-pos)
@@ -97,9 +85,9 @@
       (let [pos (row-col->position (:text result) row (:x result))]
         (assoc state :text (:text result) :cursor-position [pos pos])))))
 
-(s/defn add-indent :- {Keyword Any}
+(defn add-indent
   "Adds indent to the state."
-  [state :- {Keyword Any}]
+  [state]
   (let [; get the values out of the state
         {:keys [text cursor-position indent-type]} state
         [start-pos end-pos] cursor-position
@@ -159,3 +147,45 @@
        [(row-col->position text start-line 0)
         (row-col->position text end-line (count (get lines end-line)))])
      :text text}))
+
+; specs
+
+(s/def ::x integer?)
+(s/def ::text string?)
+(s/def ::result (s/keys :req-un [::x ::text]))
+(s/def ::cursor-position (s/tuple integer? integer?))
+(s/def ::indent-type #{:return :forward :back})
+(s/def ::state (s/keys :req-un [::cursor-position ::text] :opt-un [::indent-type]))
+
+(fdef paren-mode
+  :args (s/cat :text string? :x integer? :line integer?)
+  :ret ::result)
+
+(fdef indent-mode
+  :args (s/cat :text string? :x integer? :line integer?)
+  :ret ::result)
+
+(fdef mode
+  :args (s/cat :mode-type keyword? :text string? :x integer? :line integer?)
+  :ret ::result)
+
+(fdef split-lines
+  :args (s/cat :str string?)
+  :ret (s/coll-of string?))
+
+(fdef position->row-col
+  :args (s/cat :text string? :position integer?)
+  :ret (s/coll-of integer?))
+
+(fdef row-col->position
+  :args (s/cat :text string? :row integer? :col integer?)
+  :ret integer?)
+
+(fdef add-parinfer
+  :args (s/cat :mode-type keyword? :state ::state)
+  :ret ::state)
+
+(fdef add-indent
+  :args (s/cat :state ::state)
+  :ret ::state)
+

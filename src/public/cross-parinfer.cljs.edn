@@ -1,3 +1,0 @@
-{:require  [cross-parinfer.core]
- :init-fns []
- :compiler-options {}}

@@ -2,7 +2,6 @@
   (:require [clojure.string :as str]
             [tag-soup.core :as ts]
             [clojure.spec :as s :refer [fdef]]
-            [clojure.spec.test :refer [instrument]]
             #?(:cljs [cljsjs.parinfer]))
   #?(:clj (:import [com.oakmac.parinfer Parinfer ParinferResult])))
 

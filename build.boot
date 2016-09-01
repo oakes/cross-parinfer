@@ -19,9 +19,6 @@
        :license {"Public Domain" "http://unlicense.org/UNLICENSE"}}
   push {:repo "clojars"})
 
-(deftask run-repl []
-  (repl :init-ns 'cross-parinfer.core))
-
 (deftask try []
   (comp (pom) (jar) (install)))
 

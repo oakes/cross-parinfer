@@ -1,7 +1,7 @@
 (set-env!
   :source-paths #{"src"}
   :resource-paths #{"src"}
-  :dependencies '[[org.clojure/clojure "1.9.0-alpha11"]
+  :dependencies '[[org.clojure/clojure "1.8.0"]
                   [org.clojure/clojurescript "1.9.225"]
                   [tag-soup "1.3.4-SNAPSHOT"]
                   [org.clojars.oakes/parinfer "0.4.0"]

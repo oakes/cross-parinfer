@@ -1,7 +1,6 @@
 (ns cross-parinfer.core
   (:require [clojure.string :as str]
             [tag-soup.core :as ts]
-            [clojure.spec :as s :refer [fdef]]
             #?(:cljs [cljsjs.parinfer]))
   #?(:clj (:import [com.oakmac.parinfer Parinfer ParinferResult])))
 
@@ -146,45 +145,4 @@
        [(row-col->position text start-line 0)
         (row-col->position text end-line (count (get lines end-line)))])
      :text text}))
-
-; specs
-
-(s/def ::x integer?)
-(s/def ::text string?)
-(s/def ::result (s/keys :req-un [::x ::text]))
-(s/def ::cursor-position (s/tuple integer? integer?))
-(s/def ::indent-type #{:return :forward :back})
-(s/def ::state (s/keys :req-un [::cursor-position ::text] :opt-un [::indent-type]))
-
-(fdef paren-mode
-  :args (s/cat :text string? :x integer? :line integer?)
-  :ret ::result)
-
-(fdef indent-mode
-  :args (s/cat :text string? :x integer? :line integer?)
-  :ret ::result)
-
-(fdef mode
-  :args (s/cat :mode-type keyword? :text string? :x integer? :line integer?)
-  :ret ::result)
-
-(fdef split-lines
-  :args (s/cat :str string?)
-  :ret (s/coll-of string?))
-
-(fdef position->row-col
-  :args (s/cat :text string? :position integer?)
-  :ret (s/coll-of integer?))
-
-(fdef row-col->position
-  :args (s/cat :text string? :row integer? :col integer?)
-  :ret integer?)
-
-(fdef add-parinfer
-  :args (s/cat :mode-type keyword? :state ::state)
-  :ret ::state)
-
-(fdef add-indent
-  :args (s/cat :state ::state)
-  :ret ::state)
 

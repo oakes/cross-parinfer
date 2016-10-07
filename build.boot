@@ -13,7 +13,7 @@
 
 (task-options!
   pom {:project 'cross-parinfer
-       :version "1.1.12"
+       :version "1.1.13-SNAPSHOT"
        :description "A library that wraps Parinfer for Clojure and ClojureScript"
        :url "https://github.com/oakes/cross-parinfer"
        :license {"Public Domain" "http://unlicense.org/UNLICENSE"}}

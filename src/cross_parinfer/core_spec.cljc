@@ -7,7 +7,7 @@
 (s/def ::text string?)
 (s/def ::result (s/keys :req-un [::x ::text]))
 (s/def ::cursor-position (s/tuple integer? integer?))
-(s/def ::indent-type #{:return :forward :back})
+(s/def ::indent-type #{:return :forward :back :normal})
 (s/def ::state (s/keys :req-un [::cursor-position ::text] :opt-un [::indent-type]))
 
 (fdef c/paren-mode
@@ -37,6 +37,10 @@
 (fdef c/add-parinfer
   :args (s/cat :mode-type keyword? :state ::state)
   :ret ::state)
+
+(fdef c/indent-count
+  :args (s/cat :line string?)
+  :ret integer?)
 
 (fdef c/add-indent
   :args (s/cat :state ::state)

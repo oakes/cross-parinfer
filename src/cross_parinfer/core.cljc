@@ -111,18 +111,21 @@
                            start-x)
         ; calculate which lines need to be indented, and by how much
         lines-to-change (if (= indent-type :normal)
-                          (loop [line-num (inc start-line)
-                                 lines-to-change []]
-                            (if-let [line (get lines line-num)]
-                              (let [indent (ts/indent-for-line tags (inc line-num))
-                                    current-indent (indent-count line)]
-                                (if (not= indent current-indent)
-                                  (recur
-                                    (inc line-num)
-                                    (conj lines-to-change
-                                      {:diff (- indent current-indent) :line-num line-num}))
-                                  lines-to-change))
-                              lines-to-change))
+                          (let [indent-for-first-line (ts/indent-for-line tags (inc start-line))]
+                            (loop [line-num (inc start-line)
+                                   lines-to-change []]
+                              (if-let [line (get lines line-num)]
+                                (let [indent (ts/indent-for-line tags (inc line-num))
+                                      current-indent (indent-count line)]
+                                  (if (and (> indent 0)
+                                           (> indent indent-for-first-line)
+                                           (not= indent current-indent))
+                                    (recur
+                                      (inc line-num)
+                                      (conj lines-to-change
+                                        {:diff (- indent current-indent) :line-num line-num}))
+                                    lines-to-change))
+                                lines-to-change)))
                           (let [old-indent-level (indent-count (get lines start-line))
                                 diff (- new-indent-level old-indent-level)
                                 diff (if (neg? diff)

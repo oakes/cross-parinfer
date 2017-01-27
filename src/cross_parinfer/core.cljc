@@ -20,17 +20,22 @@
 
 (defn indent-mode
   "Runs indent mode on the given text."
-  [text x line]
-  #?(:clj
-     (let [res (try
-                 (Parinfer/indentMode text (int x) (int line) nil false)
-                 (catch Exception _
-                   (Parinfer/indentMode text (int 0) (int 0) nil false)))]
-       {:x (.-cursorX res) :text (.-text res)})
-
-     :cljs
-     (let [res (.indentMode js/parinfer text #js {:cursorLine line :cursorX x})]
-       {:x (aget res "cursorX") :text (aget res "text")})))
+  ([text x line]
+   (indent-mode text x line false))
+  ([text x line preview-cursor-scope?]
+   #?(:clj
+      (let [res (try
+                  (Parinfer/indentMode text (int x) (int line) nil preview-cursor-scope?)
+                  (catch Exception _
+                    (Parinfer/indentMode text (int 0) (int 0) nil preview-cursor-scope?)))]
+        {:x (.-cursorX res) :text (.-text res)})
+ 
+      :cljs
+      (let [res (.indentMode js/parinfer text
+                  #js {:cursorLine line
+                       :cursorX x
+                       :previewCursorScope preview-cursor-scope?})]
+        {:x (aget res "cursorX") :text (aget res "text")}))))
 
 (defn mode
   "Runs the specified mode, which can be :paren, :indent, or :both."
@@ -155,9 +160,7 @@
         ; create a string with the new text in it
         text (str/join \newline lines)
         ; apply indent mode to the new text if necessary
-        text (if (= :return indent-type)
-               text
-               (:text (indent-mode text start-x start-line)))
+        text (:text (indent-mode text new-indent-level start-line true))
         ; split the new text into lines so we can figure out the new cursor position
         lines (split-lines text)]
     ; return the new cursor position and text

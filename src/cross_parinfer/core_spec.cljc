@@ -15,7 +15,9 @@
   :ret ::result)
 
 (fdef c/indent-mode
-  :args (s/cat :text string? :x integer? :line integer?)
+  :args (s/alt
+          :three-args (s/cat :text string? :x integer? :line integer?)
+          :four-args (s/cat :text string? :x integer? :line integer? :preview-cursor-scope? boolean?))
   :ret ::result)
 
 (fdef c/mode

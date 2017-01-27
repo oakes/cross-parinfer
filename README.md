@@ -22,6 +22,13 @@ Additionally, it provides a function called `add-indent` to add indentation wher
 ; => {:cursor-position [0 19], :text "  (+ 1 1)\n  (+ 1 1)"}
 ```
 
+The `add-indent` function has an additional indent type, :normal, which you can use during all other editing actions. It will run the code through parinfer's indent mode, but when necessary it will also automatically adjust the indentation in a way that is similar to [aggressive-indent-mode](https://github.com/Malabarba/aggressive-indent-mode). You can think of it as a compromise between indent and paren mode. Example:
+
+```clojure
+(add-indent {:text "(def nums [1\n2\n3])" :cursor-position [10 10] :indent-type :normal})
+; => {:cursor-position [10 10], :text "(def nums [1\n           2\n           3])"}
+```
+
 ## Licensing
 
 All files that originate from this project are dedicated to the public domain. I would love pull requests, and will assume that they are also dedicated to the public domain.

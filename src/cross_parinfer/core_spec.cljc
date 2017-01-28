@@ -44,6 +44,10 @@
   :args (s/cat :line string?)
   :ret integer?)
 
+(fdef c/update-indent
+  :args (s/cat :diff integer? :lines (s/coll-of string?) :line-num integer?)
+  :ret (s/coll-of string?))
+
 (fdef c/add-indent
   :args (s/cat :state ::state)
   :ret ::state)

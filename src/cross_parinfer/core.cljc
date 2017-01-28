@@ -91,6 +91,17 @@
 (defn indent-count [line]
   (->> line seq (take-while #(= % \space)) count))
 
+(defn update-indent [diff lines line-num]
+  (update
+    lines
+    line-num
+    (fn [line]
+      (let [[spaces code] (split-with #(= % \space) (seq line))
+            spaces (if (pos? diff)
+                     (concat spaces (repeat diff \space))
+                     (drop (* -1 diff) spaces))]
+        (str (str/join spaces) (str/join code))))))
+
 (defn add-indent
   "Adds indent to the state."
   [state]
@@ -114,49 +125,36 @@
                            (ts/forward-indent-for-line tags (inc start-line) (indent-count (get lines start-line)))
                            :normal
                            start-x)
-        ; calculate which lines need to be indented, and by how much
-        lines-to-change (if (= indent-type :normal)
-                          (let [indent-for-first-line (ts/indent-for-line tags (inc start-line))]
-                            (loop [line-num (inc start-line)
-                                   lines-to-change []]
-                              (if-let [line (get lines line-num)]
-                                (let [indent (ts/indent-for-line tags (inc line-num))
-                                      current-indent (indent-count line)]
-                                  (if (and (> indent 0)
-                                           (> indent indent-for-first-line)
-                                           (not= indent current-indent))
-                                    (recur
-                                      (inc line-num)
-                                      (conj lines-to-change
-                                        {:diff (- indent current-indent) :line-num line-num}))
-                                    lines-to-change))
-                                lines-to-change)))
-                          (let [old-indent-level (indent-count (get lines start-line))
-                                diff (- new-indent-level old-indent-level)
-                                diff (if (neg? diff)
-                                       (->> (seq (get lines start-line))
-                                            (split-with #(= % \space))
-                                            first
-                                            (take (* -1 diff))
-                                            count
-                                            (* -1))
-                                       diff)]
-                            (map #(hash-map :diff diff :line-num %)
-                              (range start-line (inc end-line)))))
         ; apply the indentation change to the relevant lines
-        lines (reduce
-                (fn [lines {:keys [diff line-num]}]
-                  (update
-                    lines
-                    line-num
-                    (fn [line]
-                      (let [[spaces code] (split-with #(= % \space) (seq line))
-                            spaces (if (pos? diff)
-                                     (concat spaces (repeat diff \space))
-                                     (drop (* -1 diff) spaces))]
-                        (str (str/join spaces) (str/join code))))))
-                lines
-                lines-to-change)
+        lines (if (= indent-type :normal)
+                (let [indent-for-first-line (ts/indent-for-line tags (inc start-line))]
+                  (loop [lines lines
+                         tags tags
+                         line-num (inc start-line)]
+                    (if-let [line (get lines line-num)]
+                      (let [indent (ts/indent-for-line tags (inc line-num))
+                            current-indent (indent-count line)]
+                        (if (and (> indent 0)
+                                 (> indent indent-for-first-line)
+                                 (not= indent current-indent))
+                          (let [lines (update-indent (- indent current-indent) lines line-num)
+                                text (str/join \newline lines)
+                                tags (ts/code->tags text)]
+                            (recur lines tags (inc line-num)))
+                          lines))
+                      lines)))
+                (let [old-indent-level (indent-count (get lines start-line))
+                      diff (- new-indent-level old-indent-level)
+                      diff (if (neg? diff)
+                             (->> (seq (get lines start-line))
+                                  (split-with #(= % \space))
+                                  first
+                                  (take (* -1 diff))
+                                  count
+                                  (* -1))
+                             diff)]
+                  (reduce (partial update-indent diff) lines
+                    (range start-line (inc end-line)))))
         ; create a string with the new text in it
         text (str/join \newline lines)
         ; apply indent mode to the new text

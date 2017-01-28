@@ -159,7 +159,7 @@
                 lines-to-change)
         ; create a string with the new text in it
         text (str/join \newline lines)
-        ; apply indent mode to the new text if necessary
+        ; apply indent mode to the new text
         text (:text (indent-mode text new-indent-level start-line true))
         ; split the new text into lines so we can figure out the new cursor position
         lines (split-lines text)]

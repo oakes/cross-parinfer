@@ -127,22 +127,21 @@
                            start-x)
         ; apply the indentation change to the relevant lines
         lines (if (= indent-type :normal)
-                (let [indent-for-first-line (ts/indent-for-line tags (inc start-line))]
-                  (loop [lines lines
-                         tags tags
-                         line-num (inc start-line)]
-                    (if-let [line (get lines line-num)]
-                      (let [indent (ts/indent-for-line tags (inc line-num))
-                            current-indent (indent-count line)]
-                        (if (and (> indent 0)
-                                 (> indent indent-for-first-line)
-                                 (not= indent current-indent))
-                          (let [lines (update-indent (- indent current-indent) lines line-num)
-                                text (str/join \newline lines)
-                                tags (ts/code->tags text)]
-                            (recur lines tags (inc line-num)))
-                          lines))
-                      lines)))
+                (loop [lines lines
+                       tags tags
+                       line-num (inc start-line)]
+                  (if-let [line (get lines line-num)]
+                    (let [indent (ts/indent-for-line tags (inc line-num))
+                          current-indent (indent-count line)]
+                      (if (and (> indent 0)
+                               (> indent start-x)
+                               (not= indent current-indent))
+                        (let [lines (update-indent (- indent current-indent) lines line-num)
+                              text (str/join \newline lines)
+                              tags (ts/code->tags text)]
+                          (recur lines tags (inc line-num)))
+                        lines))
+                    lines))
                 (let [old-indent-level (indent-count (get lines start-line))
                       diff (- new-indent-level old-indent-level)
                       diff (if (neg? diff)

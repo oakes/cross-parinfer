@@ -1,7 +1,7 @@
 (ns cross-parinfer.core-spec
   (:require [cross-parinfer.core :as c]
             [tag-soup.core-spec]
-            [clojure.spec :as s :refer [fdef]]))
+            [clojure.spec.alpha :as s :refer [fdef]]))
 
 (s/def ::x integer?)
 (s/def ::text string?)

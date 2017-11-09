@@ -134,8 +134,7 @@
                     (let [indent (ts/indent-for-line tags (inc line-num))
                           current-indent (indent-count line)]
                       (if (and (> indent 0)
-                               (> indent start-x)
-                               (not= indent current-indent))
+                               (> indent start-x))
                         (let [lines (update-indent (- indent current-indent) lines line-num)
                               text (str/join \newline lines)
                               tags (ts/code->tags text)]

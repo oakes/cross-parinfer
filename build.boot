@@ -1,8 +1,8 @@
 (set-env!
   :source-paths #{"src"}
   :resource-paths #{"src"}
-  :dependencies '[[org.clojure/clojure "1.8.0" :scope "provided"]
-                  [org.clojure/clojurescript "1.9.908" :scope "provided"]
+  :dependencies '[[org.clojure/clojure "1.9.0" :scope "provided"]
+                  [org.clojure/clojurescript "1.9.946" :scope "provided"]
                   [tag-soup "1.5.1"]
                   [org.clojars.oakes/parinfer "0.4.0"]
                   [cljsjs/parinfer "1.8.1-0"]]

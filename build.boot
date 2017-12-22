@@ -1,15 +1,11 @@
 (set-env!
-  :source-paths #{"src"}
-  :resource-paths #{"src"}
-  :dependencies '[[org.clojure/clojure "1.9.0" :scope "provided"]
-                  [org.clojure/clojurescript "1.9.946" :scope "provided"]
-                  [tag-soup "1.5.1"]
-                  [org.clojars.oakes/parinfer "0.4.0"]
-                  [cljsjs/parinfer "1.8.1-0"]]
+  :dependencies '[[seancorfield/boot-tools-deps "0.1.4" :scope "test"]]
   :repositories (conj (get-env :repositories)
                   ["clojars" {:url "https://clojars.org/repo/"
                               :username (System/getenv "CLOJARS_USER")
                               :password (System/getenv "CLOJARS_PASS")}]))
+
+(require '[boot-tools-deps.core :refer [deps]])
 
 (task-options!
   pom {:project 'cross-parinfer
@@ -20,8 +16,8 @@
   push {:repo "clojars"})
 
 (deftask local []
-  (comp (pom) (jar) (install)))
+  (comp (deps) (pom) (jar) (install)))
 
 (deftask deploy []
-  (comp (pom) (jar) (push)))
+  (comp (deps) (pom) (jar) (push)))
 

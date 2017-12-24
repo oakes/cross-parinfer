@@ -1,8 +1,20 @@
 (ns cross-parinfer.core
   (:require [clojure.string :as str]
             [tag-soup.core :as ts]
+            [clojure.spec.alpha :as s :refer [fdef]]
             #?(:cljs [cljsjs.parinfer]))
   #?(:clj (:import [com.oakmac.parinfer Parinfer ParinferResult])))
+
+(s/def ::x integer?)
+(s/def ::text string?)
+(s/def ::result (s/keys :req-un [::x ::text]))
+(s/def ::cursor-position (s/tuple integer? integer?))
+(s/def ::indent-type #{:return :forward :back :normal})
+(s/def ::state (s/keys :req-un [::cursor-position ::text] :opt-un [::indent-type]))
+
+(fdef paren-mode
+  :args (s/cat :text string? :x integer? :line integer?)
+  :ret ::result)
 
 (defn paren-mode
   "Runs paren mode on the given text."
@@ -17,6 +29,12 @@
      :cljs
      (let [res (.parenMode js/parinfer text #js {:cursorLine line :cursorX x})]
        {:x (aget res "cursorX") :text (aget res "text")})))
+
+(fdef indent-mode
+  :args (s/alt
+          :three-args (s/cat :text string? :x integer? :line integer?)
+          :four-args (s/cat :text string? :x integer? :line integer? :preview-cursor-scope? boolean?))
+  :ret ::result)
 
 (defn indent-mode
   "Runs indent mode on the given text."
@@ -37,6 +55,10 @@
                        :previewCursorScope preview-cursor-scope?})]
         {:x (aget res "cursorX") :text (aget res "text")}))))
 
+(fdef mode
+  :args (s/cat :mode-type keyword? :text string? :x integer? :line integer?)
+  :ret ::result)
+
 (defn mode
   "Runs the specified mode, which can be :paren, :indent, or :both."
   [mode-type text x line]
@@ -48,10 +70,18 @@
     :both
     (-> text (paren-mode x line) :text (indent-mode x line))))
 
+(fdef split-lines
+  :args (s/cat :str string?)
+  :ret (s/coll-of string?))
+
 (defn split-lines
   "Splits the string into lines."
   [s]
   (vec (.split s "\n" -1)))
+
+(fdef position->row-col
+  :args (s/cat :text string? :position integer?)
+  :ret (s/coll-of integer?))
 
 (defn position->row-col
   "Converts a position to a row and column number."
@@ -63,6 +93,10 @@
               (- position last-newline 1)
               position)]
     [row col]))
+
+(fdef row-col->position
+  :args (s/cat :text string? :row integer? :col integer?)
+  :ret integer?)
 
 (defn row-col->position
   "Converts a row and column number to a position."
@@ -76,6 +110,10 @@
         text (str/join "\n" lines)]
     (count text)))
 
+(fdef add-parinfer
+  :args (s/cat :mode-type keyword? :state ::state)
+  :ret ::state)
+
 (defn add-parinfer
   "Adds parinfer to the state."
   [mode-type state]
@@ -88,8 +126,16 @@
       (let [pos (row-col->position (:text result) row (:x result))]
         (assoc state :text (:text result) :cursor-position [pos pos])))))
 
+(fdef indent-count
+  :args (s/cat :line string?)
+  :ret integer?)
+
 (defn indent-count [line]
   (->> line seq (take-while #(= % \space)) count))
+
+(fdef update-indent
+  :args (s/cat :diff integer? :lines (s/coll-of string?) :line-num integer?)
+  :ret (s/coll-of string?))
 
 (defn update-indent [diff lines line-num]
   (update
@@ -101,6 +147,10 @@
                      (concat spaces (repeat diff \space))
                      (drop (* -1 diff) spaces))]
         (str (str/join spaces) (str/join code))))))
+
+(fdef add-indent
+  :args (s/cat :state ::state)
+  :ret ::state)
 
 (defn add-indent
   "Adds indent to the state."

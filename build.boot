@@ -1,7 +1,9 @@
 (set-env!
-  :repositories [["clojars" {:url "https://clojars.org/repo/"
-                             :username (System/getenv "CLOJARS_USER")
-                             :password (System/getenv "CLOJARS_PASS")}]])
+  :resource-paths #{"src"}
+  :repositories (conj (get-env :repositories)
+                  ["clojars" {:url "https://clojars.org/repo/"
+                              :username (System/getenv "CLOJARS_USER")
+                              :password (System/getenv "CLOJARS_PASS")}]))
 
 (require '[clojure.edn :as edn])
 

@@ -28,7 +28,7 @@
 
 (task-options!
   pom {:project 'cross-parinfer
-       :version "1.4.6-SNAPSHOT"
+       :version "1.5.0"
        :description "A library that wraps Parinfer for Clojure and ClojureScript"
        :url "https://github.com/oakes/cross-parinfer"
        :license {"Public Domain" "http://unlicense.org/UNLICENSE"}}
